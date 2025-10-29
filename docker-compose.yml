@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: resultdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    restart: always
+    env_file: ./backend/.env   # your backend .env file
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+
+  admin-frontend:
+    build: ./admin-frontend
+    restart: always
+    ports:
+      - "3001:80"
+
+  student-frontend:
+    build: ./student-frontend
+    restart: always
+    ports:
+      - "3002:80"
+
+  examiner-frontend:
+    build: ./examiner-frontend
+    restart: always
+    ports:
+      - "3003:80"
+
+volumes:
+  postgres_data:
