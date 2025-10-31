@@ -1,0 +1,13 @@
+# Ignore dependencies
+node_modules
+/admin-frontend/node_modules
+
+# Ignore build output
+/admin-frontend/dist
+
+# Ignore logs
+npm-debug.log
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
