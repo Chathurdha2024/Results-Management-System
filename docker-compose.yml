@@ -1,17 +1,8 @@
-
-
 services:
   admin-frontend:
-    
-    container_name: admin_frontend
-
-    
     build:
-      context: ./admin-frontend  
-      dockerfile: Dockerfile     
-
-    
+      context: ./admin-frontend
+      dockerfile: Dockerfile
     ports:
-      - "8081:80" 
-   
+      - "5173:5173"
     restart: unless-stopped
