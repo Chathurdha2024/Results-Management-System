@@ -10,11 +10,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@fastify/cors": "^10.1.0",
     "@fastify/jwt": "^10.0.0",
     "@fastify/mongodb": "^9.0.2",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "fastify": "^5.7.1",
     "fastify-multipart": "^5.3.1",
@@ -23,5 +23,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
-  }
+  },
+  "description": ""
 }

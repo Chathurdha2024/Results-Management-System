@@ -1,93 +1,88 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // 1. Import useNavigate
 
-// Define the dummy credentials
-const DUMMY_USERNAME = 'eg20224981';
-const DUMMY_PASSWORD = 'password123';
-
-const AdminLogin = () => {
+const StudentLogin = () => {
+  const [registerNo, setRegisterNo] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [registerNo, setRegisterNo] = useState('');
-  // State for login message/feedback
-  const [loginMessage, setLoginMessage] = useState({ type: '', text: '' }); 
+  const [loading, setLoading] = useState(false);
+  const [loginMessage, setLoginMessage] = useState({ type: '', text: '' });
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate(); // 2. Initialize navigate
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Reset previous message
     setLoginMessage({ type: '', text: '' });
+    setLoading(true);
 
-    // --- Dummy Login Logic ---
-    if (registerNo === DUMMY_USERNAME && password === DUMMY_PASSWORD) {
-      console.log('Login successful for:', registerNo);
-      setLoginMessage({ type: 'success', text: 'Login Successful! Redirecting...' });
-      // In a real application, you would store the token/session and redirect here.
-      // Example: history.push('/dashboard');
-      
-    } else {
-      console.log('Login failed for:',registerNo);
-      setLoginMessage({ type: 'error', text: 'Invalid registerNo or password.' });
+    try {
+      const response = await fetch('http://localhost:3001/api/student/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          register_no: registerNo, 
+          password: password 
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setLoginMessage({ type: 'success', text: `Welcome, ${data.user.name}!` });
+        
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        // 3. Navigate to Dashboard after a short delay
+        setTimeout(() => {
+          navigate('/student-dashboard');
+        }, 1000);
+
+      } else {
+        setLoginMessage({ type: 'error', text: data.message || 'Login failed.' });
+      }
+    } catch (error) {
+      setLoginMessage({ type: 'error', text: 'Server error. Please try again later.' });
+    } finally {
+      setLoading(false);
     }
-    // -------------------------
   };
 
+  // ... rest of your existing component (togglePasswordVisibility, getMessageClasses, and return JSX) remains the same
+  
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  // Helper function to determine message styling
   const getMessageClasses = () => {
-    if (loginMessage.type === 'success') {
-      return 'bg-green-100 border-green-400 text-green-700';
-    } else if (loginMessage.type === 'error') {
-      return 'bg-red-100 border-red-400 text-red-700';
-    }
+    if (loginMessage.type === 'success') return 'bg-green-100 border-green-400 text-green-700';
+    if (loginMessage.type === 'error') return 'bg-red-100 border-red-400 text-red-700';
     return 'hidden';
   };
 
   return (
-    // Fullscreen container with no padding
     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-50 overflow-hidden">
-
-      
-      {/* Background Circles (omitted for brevity) */}
       <div className="absolute top-0 right-0 w-90 h-90 bg-blue-600 rounded-full opacity-60 transform translate-x-1/2 -translate-y-1/2"></div>
       <div className="absolute top-0 right-0 w-120 h-120 bg-gray-200 rounded-full opacity-60 transform translate-x-1/2 -translate-y-1/2"></div>
-
       <div className="absolute bottom-0 left-0 w-120 h-120 bg-gray-200 rounded-full opacity-60 transform -translate-x-1/3 translate-y-1/3"></div>
       <div className="absolute bottom-0 left-0 w-90 h-90 bg-gray-300 rounded-full opacity-60 transform -translate-x-1/3 translate-y-1/3"></div>
-      <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-400 rounded-full opacity-60 transform -translate-x-1/3 translate-y-1/3"></div>
 
-      {/* Logo + Title */}
       <div className="z-10 text-center mb-8">
         <GraduationCap className="mx-auto h-12 w-12 text-blue-600 fill-blue-600 bg-white p-2 rounded-full shadow-lg" />
-        <h1 className="text-3xl font-bold text-gray-900 mt-4">
-          Result Management System
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Faculty of Engineering <br />
-          University of Ruhuna
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 mt-4">Result Management System</h1>
+        <p className="text-gray-500 mt-1">Student Portal</p>
       </div>
 
-      {/* Login Card */}
       <div className="w-full max-w-sm bg-white p-6 rounded-xl shadow-2xl z-10">
-        <h2 className="text-xl font-semibold text-gray-800 text-center mb-6 ">
-          Student Login
-        </h2>
-
-        {/* Login Message Display */}
-        <div className={`p-3 border rounded-lg mb-4 text-center ${getMessageClasses()}`}>
+        <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">Student Login</h2>
+        <div className={`p-3 border rounded-lg mb-4 text-center text-sm ${getMessageClasses()}`}>
             {loginMessage.text}
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username */}
           <div>
-            <label htmlFor="regusterNo" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-              Register No
-            </label>
+            <label htmlFor="registerNo" className="block text-sm font-medium text-gray-700 mb-1 text-left">Registration Number</label>
             <div className="relative">
               <input
                 id="registerNo"
@@ -98,21 +93,17 @@ const AdminLogin = () => {
                 onChange={(e) => setRegisterNo(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-400"
               />
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             </div>
           </div>
 
-          {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-              Password
-            </label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1 text-left">Password</label>
             <div className="relative">
               <input
                 id="password"
-                name="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                placeholder="Enter password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -123,20 +114,21 @@ const AdminLogin = () => {
                 type="button"
                 onClick={togglePasswordVisibility}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
 
-          {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
+              disabled={loading}
+              className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white 
+                ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} 
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out`}
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </div>
         </form>
@@ -145,4 +137,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default StudentLogin;

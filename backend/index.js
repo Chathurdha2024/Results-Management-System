@@ -7,25 +7,11 @@ const jwt = require('jsonwebtoken');
 const PORT = process.env.PORT || 3001;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/results_db';
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
-const ADMIN_JWT_EXP = process.env.ADMIN_JWT_EXP || '1d';
+const ADMIN_JWT_EXP = '1d';
+const STUDENT_JWT_EXP = '1d';
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
-// Support multiple seed admins via env.
-// Example:
-//   ADMIN_ACCOUNTS=admin@example.com:Pass123,ops@example.com:Ops456
-// Fallback to single ADMIN_EMAIL/ADMIN_PASSWORD if ADMIN_ACCOUNTS not provided.
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
-const ADMIN_ACCOUNTS = process.env.ADMIN_ACCOUNTS || '';
-const ADMIN_SEED_OVERWRITE = String(process.env.ADMIN_SEED_OVERWRITE || '').toLowerCase() === 'true';
 
-// Admin schema
-const adminSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true }, // plain text
-}, { timestamps: true });
-
-const Admin = mongoose.model('Admin', adminSchema);
-
+// --- DATABASE CONNECTION ---
 async function connectDatabase() {
   try {
     await mongoose.connect(MONGO_URI);
@@ -36,42 +22,59 @@ async function connectDatabase() {
   }
 }
 
-function parseAdminAccounts() {
-  if (!ADMIN_ACCOUNTS.trim()) {
-    return [{ email: ADMIN_EMAIL, password: ADMIN_PASSWORD }];
+// --- SCHEMAS ---
+
+// 1. Admin Schema
+const adminSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true }, // plain text
+}, { timestamps: true });
+
+const Admin = mongoose.model('Admin', adminSchema);
+
+// 2. Student Schema (Updated as requested)
+const studentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  register_no: { type: String, required: true, unique: true, trim: true }, // e.g., EG/2022/4981
+  email: { type: String, required: true },
+  semester: { type: String, required: true },
+  year: { type: String, required: true },
+  password: { type: String, required: true }, // plain text as requested
+}, { timestamps: true });
+
+const Student = mongoose.model('Student', studentSchema);
+
+// --- SEEDING ---
+
+// Seed Admin (from your original code)
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
+
+async function ensureSeedData() {
+  // 1. Ensure Admin
+  const adminExists = await Admin.findOne({ email: ADMIN_EMAIL });
+  if (!adminExists) {
+    await Admin.create({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+    fastify.log.warn(`Seed admin created: ${ADMIN_EMAIL}`);
   }
 
-  return ADMIN_ACCOUNTS.split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .map((entry) => {
-      const [emailRaw, passwordRaw] = entry.split(':');
-      const email = (emailRaw || '').toLowerCase().trim();
-      const password = (passwordRaw || '').trim();
-      if (!email || !password) {
-        throw new Error(`Invalid ADMIN_ACCOUNTS entry: "${entry}" (expected email:password)`);
-      }
-      return { email, password };
+  // 2. Ensure Test Student (So you can log in immediately)
+  const testRegNo = 'EG/2022/4981';
+  const studentExists = await Student.findOne({ register_no: testRegNo });
+  if (!studentExists) {
+    await Student.create({
+      name: 'John Doe',
+      register_no: testRegNo,
+      email: 'john@eng.ruh.ac.lk',
+      semester: '3rd Semester',
+      year: '2nd Year',
+      password: 'password123' // Plain text password
     });
-}
-
-async function ensureSeedAdmins() {
-  const seeds = parseAdminAccounts();
-  for (const { email, password } of seeds) {
-    const existing = await Admin.findOne({ email });
-    if (existing) {
-      if (ADMIN_SEED_OVERWRITE && existing.password !== password) {
-        existing.password = password;
-        await existing.save();
-        fastify.log.warn(`Seed admin password updated for "${email}" (ADMIN_SEED_OVERWRITE=true).`);
-      }
-      continue;
-    }
-
-    await Admin.create({ email, password });
-    fastify.log.warn(`Seed admin created with email "${email}". Update passwords in DB/ENV.`);
+    fastify.log.warn(`Seed student created: ${testRegNo} / password123`);
   }
 }
+
+// --- SERVER & ROUTES ---
 
 async function buildServer() {
   await fastify.register(cors, {
@@ -81,31 +84,66 @@ async function buildServer() {
 
   fastify.get('/api/health', async () => ({ status: 'ok' }));
 
+  // ADMIN LOGIN
   fastify.post('/api/admin/login', async (request, reply) => {
     const { email, password } = request.body || {};
-
-    if (!email || !password) {
-      return reply.code(400).send({ message: 'Email and password are required.' });
-    }
+    if (!email || !password) return reply.code(400).send({ message: 'Missing credentials.' });
 
     const admin = await Admin.findOne({ email: email.toLowerCase().trim() });
     if (!admin || password !== admin.password) {
       return reply.code(401).send({ message: 'Invalid email or password.' });
     }
 
+    const token = jwt.sign({ sub: admin._id, role: 'admin' }, JWT_SECRET, { expiresIn: ADMIN_JWT_EXP });
+    return reply.send({ token, role: 'admin' });
+  });
+
+  // STUDENT LOGIN (New)
+  fastify.post('/api/student/login', async (request, reply) => {
+    const { register_no, password } = request.body || {};
+
+    if (!register_no || !password) {
+      return reply.code(400).send({ message: 'Registration Number and password are required.' });
+    }
+
+    // Find student by Register No
+    const student = await Student.findOne({ register_no: register_no.trim() });
+
+    // Verify Password (Plain text comparison)
+    if (!student || student.password !== password) {
+      return reply.code(401).send({ message: 'Invalid Registration Number or Password.' });
+    }
+
+    // Create Token
     const token = jwt.sign(
-      { sub: admin._id.toString(), email: admin.email, role: 'admin' },
-      JWT_SECRET,
-      { expiresIn: ADMIN_JWT_EXP }
+      { 
+        sub: student._id, 
+        role: 'student',
+        register_no: student.register_no,
+        name: student.name
+      }, 
+      JWT_SECRET, 
+      { expiresIn: STUDENT_JWT_EXP }
     );
 
-    return reply.send({ token });
+    // Send back token and student info (excluding password)
+    return reply.send({ 
+      token,
+      role: 'student',
+      user: {
+        name: student.name,
+        register_no: student.register_no,
+        email: student.email,
+        semester: student.semester,
+        year: student.year
+      }
+    });
   });
 }
 
 async function start() {
   await connectDatabase();
-  await ensureSeedAdmins();
+  await ensureSeedData();
   await buildServer();
 
   try {
