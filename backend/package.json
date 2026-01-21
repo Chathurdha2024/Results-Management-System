@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fastify/cors": "^10.1.0",
+    "@fastify/jwt": "^10.0.0",
+    "@fastify/mongodb": "^9.0.2",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.7.1",
+    "fastify-multipart": "^5.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

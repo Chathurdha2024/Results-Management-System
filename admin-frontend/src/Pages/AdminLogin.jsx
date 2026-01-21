@@ -2,35 +2,44 @@
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, GraduationCap } from 'lucide-react';
 
-// Define the dummy credentials
-const DUMMY_USERNAME = 'admin@eng.ruh.ac.lk';
-const DUMMY_PASSWORD = 'password123';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(false);
   // State for login message/feedback
   const [loginMessage, setLoginMessage] = useState({ type: '', text: '' }); 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Reset previous message
     setLoginMessage({ type: '', text: '' });
+    setLoading(true);
 
-    // --- Dummy Login Logic ---
-    if (username === DUMMY_USERNAME && password === DUMMY_PASSWORD) {
-      console.log('Login successful for:', username);
-      setLoginMessage({ type: 'success', text: 'Login Successful! Redirecting...' });
-      // In a real application, you would store the token/session and redirect here.
-      // Example: history.push('/dashboard');
-      
-    } else {
-      console.log('Login failed for:', username);
-      setLoginMessage({ type: 'error', text: 'Invalid username or password.' });
+    try {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: username, password }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Login failed');
+      }
+
+      const { token } = await res.json();
+      if (token) {
+        localStorage.setItem('admin_jwt', token);
+      }
+      setLoginMessage({ type: 'success', text: 'Login successful! Redirecting...' });
+      // TODO: redirect to dashboard once it exists
+    } catch (err) {
+      setLoginMessage({ type: 'error', text: err.message || 'Invalid username or password.' });
+    } finally {
+      setLoading(false);
     }
-    // -------------------------
   };
 
   const togglePasswordVisibility = () => {
@@ -138,7 +147,7 @@ const AdminLogin = () => {
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
           </div>
         </form>
