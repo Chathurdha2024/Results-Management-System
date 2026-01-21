@@ -6,3 +6,11 @@ services:
     ports:
       - "5173:5173"
     restart: unless-stopped
+
+  student-frontend:
+    build:
+      context: ./student-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5174:5174"
+    restart: unless-stopped
