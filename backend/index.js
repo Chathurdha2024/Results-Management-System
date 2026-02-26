@@ -45,6 +45,59 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model('Student', studentSchema);
 
+// --- NEW SCHEMAS ---
+
+const programSchema = new mongoose.Schema({
+  code: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  level: String,
+  semesters: Number,
+  status: { type: String, default: 'Active' }
+}, { timestamps: true });
+
+const Program = mongoose.model('Program', programSchema);
+
+const moduleSchema = new mongoose.Schema({
+  programId: { type: mongoose.Schema.Types.ObjectId, ref: 'Program', required: true },
+  code: { type: String, required: true },
+  title: { type: String, required: true },
+  semester: { type: Number, required: true },
+  batch: { type: String, required: true }, // e.g., "2022/2023"
+  credits: { type: Number, default: 3 }
+}, { timestamps: true });
+
+const Module = mongoose.model('Module', moduleSchema);
+
+// --- NEW API ROUTES (Add inside buildServer function) ---
+
+// 1. Programs
+fastify.get('/api/programs', async () => await Program.find({}));
+
+fastify.post('/api/programs', async (request, reply) => {
+  try {
+    const program = await Program.create(request.body);
+    return program;
+  } catch (err) {
+    return reply.code(400).send({ message: "Duplicate Program Code or Invalid Data" });
+  }
+});
+
+// 2. Modules
+// Get modules for a specific program
+fastify.get('/api/programs/:id/modules', async (request) => {
+  return await Module.find({ programId: request.params.id }).sort({ semester: 1 });
+});
+
+// Create a module
+fastify.post('/api/modules', async (request, reply) => {
+  try {
+    const moduleData = await Module.create(request.body);
+    return moduleData;
+  } catch (err) {
+    return reply.code(400).send({ message: "Failed to create module" });
+  }
+});
+
 // --- SEEDING ---
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ChangeMe123!';

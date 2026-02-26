@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import AdminLogin from './Pages/AdminLogin';
-import AdminDashboard from './Pages/AdminDashboard';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Layouts & Pages
+import AdminLayout from './layouts/AdminLayout.jsx';
+import AdminLogin from './Pages/AdminLogin.jsx';
+import Dashboard from './Pages/Dashboard.jsx';
+import Programs from './Pages/Programs.jsx';
+import Exams from './Pages/Exams.jsx';
+import Examiners from './Pages/Examiners.jsx';
+import Results from './Pages/Results.jsx';
+import Students from './Pages/Students.jsx';
+import Reports from './Pages/Reports.jsx';
 
 function App() {
-  // Initialize state based on localStorage
+  // 1. Initialize authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
@@ -15,47 +24,43 @@ function App() {
   };
 
   const handleLogout = () => {
-    // 1. Update State
     setIsLoggedIn(false);
-    // 2. Clear Local Storage
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('admin_jwt'); // Clear the token as well if you use one
+    localStorage.removeItem('admin_jwt');
   };
 
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* Login Page */}
+        {/* PUBLIC ROUTE: Login */}
         <Route 
           path="/login" 
           element={
-            isLoggedIn ? 
-            <Navigate to="/dashboard" replace /> : 
-            <AdminLogin setIsLoggedIn={handleLogin} />
+            isLoggedIn ? <Navigate to="/" replace /> : <AdminLogin setIsLoggedIn={handleLogin} />
           } 
         />
 
-        {/* Dashboard - Pass handleLogout as a prop called 'onLogout' */}
-        <Route 
-          path="/dashboard" 
-          element={
-            isLoggedIn ? 
-            <AdminDashboard onLogout={handleLogout} /> : 
-            <Navigate to="/login" replace />
-          }
-        />
-
-        {/* Default Redirects */}
+        {/* PROTECTED ROUTES: Wrapped in AdminLayout */}
         <Route 
           path="/" 
-          element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} 
-        />
-        <Route 
-          path="*" 
-          element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} 
-        />
+          element={
+            isLoggedIn ? <AdminLayout onLogout={handleLogout} /> : <Navigate to="/login" replace />
+          }
+        >
+          {/* Nested Routes render inside the <Outlet /> of AdminLayout */}
+          <Route index element={<Dashboard />} />
+          <Route path="programs" element={<Programs />} />
+          <Route path="exams" element={<Exams />} />
+          <Route path="examiners" element={<Examiners />} />
+          <Route path="results" element={<Results />} />
+          <Route path="students" element={<Students />} />
+          <Route path="reports" element={<Reports />} />
+        </Route>
+
+        {/* Catch-all: Redirect to Home or Login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
