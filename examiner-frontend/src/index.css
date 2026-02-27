@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* If your tailwind.config.js is in the root folder, use this path: */
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+}
