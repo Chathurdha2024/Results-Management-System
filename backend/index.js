@@ -45,8 +45,6 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model('Student', studentSchema);
 
-// --- NEW SCHEMAS ---
-
 const programSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
   name: { type: String, required: true },
@@ -68,9 +66,75 @@ const moduleSchema = new mongoose.Schema({
 
 const Module = mongoose.model('Module', moduleSchema);
 
-// --- NEW API ROUTES (Add inside buildServer function) ---
+// --- NEW EXAM SCHEMA ---
+const examSchema = new mongoose.Schema({
+  programId: { type: mongoose.Schema.Types.ObjectId, ref: 'Program', required: true },
+  moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true },
+  batch: { type: String, required: true },
+  date: { type: String, required: true }, // Format: YYYY-MM-DD
+  session: { type: String, enum: ['Morning', 'Evening'], required: true },
+  venue: { type: String, required: true },
+  startTime: String,
+  endTime: String
+}, { timestamps: true });
 
-// 1. Programs
+const Exam = mongoose.model('Exam', examSchema);
+
+// --- EXAM ROUTES (Add inside buildServer) ---
+
+
+
+// Get all exams with populated details
+fastify.get('/api/exams', async () => {
+  return await Exam.find({})
+    .populate('programId', 'name code')
+    .populate('moduleId', 'title code')
+    .sort({ date: 1, startTime: 1 });
+});
+
+// Schedule Exam with Validation
+fastify.post('/api/exams', async (request, reply) => {
+  const { programId, moduleId, batch, date, session, venue } = request.body;
+
+  // 1. Check if this module already has an exam scheduled
+  const existingModuleExam = await Exam.findOne({ moduleId });
+  if (existingModuleExam) {
+    return reply.code(400).send({ message: "An exam for this module is already scheduled." });
+  }
+
+  // 2. Check if the venue is already occupied for this date and session
+  const venueClash = await Exam.findOne({ date, session, venue });
+  if (venueClash) {
+    return reply.code(400).send({ 
+      message: `Venue ${venue} is already booked for ${session} session on ${date}.` 
+    });
+  }
+
+  // Set times based on session
+  const startTime = session === 'Morning' ? '09:00' : '13:00';
+  const endTime = session === 'Morning' ? '12:00' : '16:00';
+
+  try {
+    const newExam = await Exam.create({
+      ...request.body,
+      startTime,
+      endTime
+    });
+    return newExam;
+  } catch (err) {
+    return reply.code(500).send({ message: "Server error during scheduling." });
+  }
+  
+});
+
+// Delete Exam
+fastify.delete('/api/exams/:id', async (request) => {
+  await Exam.findByIdAndDelete(request.params.id);
+  return { success: true };
+});
+
+
+// --- 1. Programs ---
 fastify.get('/api/programs', async () => await Program.find({}));
 
 fastify.post('/api/programs', async (request, reply) => {
@@ -82,13 +146,23 @@ fastify.post('/api/programs', async (request, reply) => {
   }
 });
 
-// 2. Modules
-// Get modules for a specific program
+// Update Program
+fastify.put('/api/programs/:id', async (request) => {
+  return await Program.findByIdAndUpdate(request.params.id, request.body, { new: true });
+});
+
+// Delete Program & its associated modules
+fastify.delete('/api/programs/:id', async (request) => {
+  await Program.findByIdAndDelete(request.params.id);
+  await Module.deleteMany({ programId: request.params.id }); // Clean up modules
+  return { success: true };
+});
+
+// --- 2. Modules ---
 fastify.get('/api/programs/:id/modules', async (request) => {
   return await Module.find({ programId: request.params.id }).sort({ semester: 1 });
 });
 
-// Create a module
 fastify.post('/api/modules', async (request, reply) => {
   try {
     const moduleData = await Module.create(request.body);
@@ -96,6 +170,17 @@ fastify.post('/api/modules', async (request, reply) => {
   } catch (err) {
     return reply.code(400).send({ message: "Failed to create module" });
   }
+});
+
+// Update Module
+fastify.put('/api/modules/:id', async (request) => {
+  return await Module.findByIdAndUpdate(request.params.id, request.body, { new: true });
+});
+
+// Delete Module
+fastify.delete('/api/modules/:id', async (request) => {
+  await Module.findByIdAndDelete(request.params.id);
+  return { success: true };
 });
 
 // --- SEEDING ---
