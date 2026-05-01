@@ -1,23 +1,31 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
+  content:[
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        // Your provided colors:
-        'custom-blue-light': '#2563EB', // For your main accents (e.g., Sign In button)
-        'custom-blue-dark': '#002F97',  // For deep shadows or primary headers
-        
-        // This is the approximate hex for the Tailwind default bg-blue-100 (for the light background)
-        'brand-bg-light': '#DBEAFE', 
-        
-        // You can also redefine your main primary color for simplicity:
-        'primary': '#2563EB',
+        // Primary (Blues)
+        primary: {
+          DEFAULT: '#2563EB', // Standard Primary Blue
+          light: '#DBEAFE',   // Light Blue background
+          600: '#2563EB',     
+          700: '#1D4ED8',     // Darker Blue for hovers
+        },
+        // Secondary (Greens)
+        secondary: {
+          DEFAULT: '#22C55E', // Standard Green
+          light: '#DCFCE7',
+        },
+        // Layout Colors
+        background: '#F8FAFC',
+        card: '#FFFFFF',
+        textPrimary: '#0F172A',
+        textSecondary: '#64748B',
       },
     },
   },
-  plugins: [],
+  plugins:[],
 }
