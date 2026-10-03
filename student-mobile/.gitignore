@@ -39,6 +39,3 @@ yarn-error.*
 # generated native folders
 /ios
 /android
-
-# local dev tunnel logs
-*-tunnel.log
