@@ -1,33 +1,34 @@
+version: '3.8'
+
 services:
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
     environment:
-      PORT: 3001
-      MONGO_URI: mongodb+srv://Buddhi2002:Buddhi2002@rms.tsotgyv.mongodb.net/?appName=RMS
-      JWT_SECRET: replace-with-strong-secret
-      CORS_ORIGIN: http://localhost:5173,http://localhost:5174
-    restart: unless-stopped
-
-  admin-frontend:
-    build:
-      context: ./admin-frontend
-      dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-    restart: unless-stopped
+      - NODE_ENV=production
 
   student-frontend:
     build:
       context: ./student-frontend
       dockerfile: Dockerfile
     ports:
-      - "5174:5174"
+      - "5174:80"
+    restart: unless-stopped
     depends_on:
       - backend
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
     restart: unless-stopped
+    depends_on:
+      - backend
