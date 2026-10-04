@@ -1,0 +1,145 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Department {
+  id        String     @id
+  name      String
+  examiners Examiner[]
+  modules   Module[]
+  results   Result[]
+  students  Student[]
+}
+
+model Batch {
+  id         String    @id @default(uuid())
+  name       String    @unique
+  startRegNo String
+  endRegNo   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  students   Student[]
+}
+
+model Student {
+  regNo         String         @id
+  batchId       String
+  departmentId  String         @default("GENERAL")
+  password      String?
+  isFirstLogin  Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notifications Notification[]
+  results       Result[]
+  batch         Batch          @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  department    Department     @relation(fields: [departmentId], references: [id])
+
+  @@index([batchId])
+  @@index([departmentId])
+}
+
+model Module {
+  code          String         @id
+  name          String
+  credits       Int            @default(3)
+  type          String
+  isGpa         Boolean        @default(true)
+  semester      Int
+  departmentId  String         @default("GENERAL")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  examSchedules ExamSchedule[]
+  department    Department     @relation(fields: [departmentId], references: [id])
+  results       Result[]
+
+  @@index([departmentId])
+  @@index([semester])
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Result {
+  studentRegNo  String
+  moduleCode    String
+  departmentId  String     @default("GENERAL")
+  grade         String
+  previousGrade String?
+  isGpa         Boolean?   // Null means it uses the Module's default
+  isRepeat      Boolean    @default(false)
+  isPublished   Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  department    Department @relation(fields: [departmentId], references: [id])
+  module        Module     @relation(fields: [moduleCode], references: [code], onDelete: Cascade)
+  student       Student    @relation(fields: [studentRegNo], references: [regNo], onDelete: Cascade)
+
+  @@id([studentRegNo, moduleCode])
+  @@index([moduleCode])
+  @@index([isPublished])
+  @@index([departmentId])
+}
+
+model Notification {
+  id           String   @id @default(uuid())
+  studentRegNo String
+  title        String
+  message      String
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  student      Student  @relation(fields: [studentRegNo], references: [regNo], onDelete: Cascade)
+
+  @@index([studentRegNo, isRead])
+}
+
+model Examiner {
+  email         String                 @id
+  name          String
+  password      String?
+  departmentId  String                 @default("GENERAL")
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  isRegistered  Boolean                @default(false)
+  schedules     ExamSchedule[]
+  department    Department             @relation(fields: [departmentId], references: [id])
+  notifications ExaminerNotification[]
+}
+
+model ExamSchedule {
+  id            String   @id @default(uuid())
+  moduleCode    String
+  examinerEmail String
+  date          DateTime
+  venue         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  examiner      Examiner @relation(fields: [examinerEmail], references: [email], onDelete: Cascade)
+  module        Module   @relation(fields: [moduleCode], references: [code], onDelete: Cascade)
+
+  @@index([examinerEmail])
+  @@index([moduleCode])
+  @@index([date])
+}
+
+model ExaminerNotification {
+  id            String   @id @default(uuid())
+  examinerEmail String
+  title         String
+  message       String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  examiner      Examiner @relation(fields: [examinerEmail], references: [email], onDelete: Cascade)
+
+  @@index([examinerEmail, isRead])
+}
