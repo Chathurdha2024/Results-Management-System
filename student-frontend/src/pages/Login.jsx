@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { GraduationCap, User, Lock } from 'lucide-react';
+import { GraduationCap, User, Lock, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -76,13 +77,24 @@ export default function Login() {
                   <Lock className="h-5 w-5 text-brand-900/40" />
                 </div>
                 <Input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 bg-brand-gold/5 border-brand-gold/30 focus-visible:ring-brand-gold"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-900/40 hover:text-brand-900"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -91,7 +103,7 @@ export default function Login() {
                 disabled={loading}
                 className="w-full text-brand-white bg-brand-900 hover:bg-brand-800 transition-colors"
               >
-                {loading ? 'Authenticating...' : 'Sign in securely'}
+                {loading ? 'Authenticating...' : 'Sign in'}
               </Button>
           </form>
           
