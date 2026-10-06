@@ -100,6 +100,14 @@ JWT_SECRET="your_jwt_secret_key"
 NODE_ENV="development"
 ```
 
+## Deployment Architecture (CI/CD)
+
+The application is deployed to an **AWS EC2 Instance** with a fully automated CI/CD pipeline:
+- **Continuous Integration (CI):** Backend testing is handled automatically by **GitHub Actions** on every push.
+- **Continuous Deployment (CD):** Live server deployment is handled by **Jenkins**. A GitHub Webhook instantly triggers Jenkins to pull the latest code and rebuild the containers using Docker Compose.
+
+For full architectural details, network configurations, and the complete CI/CD flowchart, please read the full [Deployment Documentation](documents/DEPLOYMENT.md).
+
 ## Features
 - **Admin Dashboard**: Upload student credentials (via CSV), publish results, and manage records.
 - **Student Portal (Web & Mobile)**: Secure login for students to view their academic results.
