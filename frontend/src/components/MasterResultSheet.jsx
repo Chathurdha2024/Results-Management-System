@@ -17,7 +17,7 @@ export default function MasterResultSheet({ batchId, semester, department, refre
   const fetchMasterSheet = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://54.198.25.194:3000/api/admin/batches/${batchId}/semesters/${semester}/departments/${department}/master-sheet`);
+      const res = await axios.get(`/api/admin/batches/${batchId}/semesters/${semester}/departments/${department}/master-sheet`);
       setData(res.data);
     } catch (e) {
       console.error(e);

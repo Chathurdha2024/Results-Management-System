@@ -12,7 +12,7 @@ export default function DepartmentWorkspace({ batchId, semester, department }) {
 
   useEffect(() => {
     if (batchId && department) {
-      axios.get(`http://54.198.25.194:3000/api/admin/batches/${batchId}/departments/${department}/stats`)
+      axios.get(`/api/admin/batches/${batchId}/departments/${department}/stats`)
         .then(res => {
           if (res.data.studentCount > 0) {
             setHasUploaded(true);
@@ -37,7 +37,7 @@ export default function DepartmentWorkspace({ batchId, semester, department }) {
     setUploading(true);
     
     try {
-      const res = await axios.post(`http://54.198.25.194:3000/api/admin/batches/${batchId}/departments/${department}/upload`, formData);
+      const res = await axios.post(`/api/admin/batches/${batchId}/departments/${department}/upload`, formData);
       toast.success(`Successfully assigned ${res.data.count} students!`, { id: tid });
       setHasUploaded(true);
       setStudentCount(res.data.count);

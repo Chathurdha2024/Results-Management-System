@@ -33,7 +33,7 @@ export default function ModuleManagement({ batchId, semester, department, highli
 
   const fetchModules = async () => {
     try {
-      const res = await axios.get(`http://54.198.25.194:3000/api/admin/modules/${semester}/departments/${department}${batchId ? `?batchId=${batchId}` : ''}`);
+      const res = await axios.get(`/api/admin/modules/${semester}/departments/${department}${batchId ? `?batchId=${batchId}` : ''}`);
       setModules(res.data);
       if (onRefresh) onRefresh();
     } catch (e) {
@@ -59,13 +59,13 @@ export default function ModuleManagement({ batchId, semester, department, highli
     const tid = toast.loading(editingModuleCode ? 'Updating module...' : 'Adding module...');
     try {
       if (editingModuleCode) {
-        await axios.put(`http://54.198.25.194:3000/api/admin/modules/${editingModuleCode}`, { 
+        await axios.put(`/api/admin/modules/${editingModuleCode}`, { 
           name: newModule.name, type: newModule.type, department, isGpa: newModule.isGpa 
         });
         toast.success('Module updated', { id: tid });
         setEditingModuleCode(null);
       } else {
-        await axios.post('http://54.198.25.194:3000/api/admin/modules', { ...newModule, code: formattedCode, semester, department });
+        await axios.post('/api/admin/modules', { ...newModule, code: formattedCode, semester, department });
         toast.success('Module added', { id: tid });
       }
       setNewModule({ code: '', name: '', type: 'CORE', isGpa: true });
@@ -85,7 +85,7 @@ export default function ModuleManagement({ batchId, semester, department, highli
       onConfirm: async () => {
         const tid = toast.loading('Deleting...');
         try {
-          await axios.delete(`http://54.198.25.194:3000/api/admin/modules/${encodeURIComponent(code)}`);
+          await axios.delete(`/api/admin/modules/${encodeURIComponent(code)}`);
           toast.success('Module deleted', { id: tid });
           fetchModules();
         } catch (e) {

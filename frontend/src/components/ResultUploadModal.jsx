@@ -32,7 +32,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
 
   const fetchResults = async () => {
     try {
-      const res = await axios.get(`http://54.198.25.194:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results${department ? `?department=${department}` : ''}`);
+      const res = await axios.get(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results${department ? `?department=${department}` : ''}`);
       // Filter results to only show students from the currently active batch
       const filteredResults = batchId 
         ? res.data.filter(r => r.student && r.student.batchId === batchId)
@@ -63,7 +63,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
     formData.append('file', file);
     
     try {
-      await axios.post(`http://54.198.25.194:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results/upload?batchId=${batchId}&isRepeatUpload=${isRepeatUpload}`, formData);
+      await axios.post(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results/upload?batchId=${batchId}&isRepeatUpload=${isRepeatUpload}`, formData);
       clearInterval(progressInterval);
       setUploadProgress(100);
       
@@ -97,7 +97,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
       onConfirm: async () => {
         const tid = toast.loading('Publishing...');
         try {
-          await axios.post(`http://54.198.25.194:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results/publish`);
+          await axios.post(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results/publish`);
           toast.success('Results published!', { id: tid });
           fetchResults();
         } catch (e) {
@@ -116,7 +116,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
       onConfirm: async () => {
         const tid = toast.loading('Unpublishing...');
         try {
-          await axios.post(`http://54.198.25.194:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results/unpublish`);
+          await axios.post(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results/unpublish`);
           toast.success('Results unpublished!', { id: tid });
           fetchResults();
         } catch (e) {
