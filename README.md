@@ -147,6 +147,18 @@ This application is deployed live to an **AWS EC2 Instance** with a fully automa
 
 ---
 
+## 🛡️ Security & Authentication (Backend)
+
+The backend acts as an impenetrable fortress using enterprise-grade security standards:
+
+- 🔑 **Token Generation (JWT & bcrypt):** The backend securely hashes passwords using `bcrypt`. Upon successful login, the backend generates and cryptographically signs a secure JSON Web Token (JWT) using a secret key.
+- 🚧 **Protected Routes (The Security Guard):** The frontend only stores the token, but the backend acts as the true security guard. Every time the frontend requests data (like "give me the student results"), the backend intercepts the request, verifies the JWT signature, and instantly blocks malicious requests with a `401 Unauthorized` error if the token is fake, tampered with, or expired.
+- 👮‍♂️ **Role-Based Access Control (RBAC):** The backend inspects the payload of every verified token to determine if the user is a `STUDENT`, `ADMIN`, or `EXAMINER`, strictly restricting their database access based on their exact role.
+
+For an in-depth code explanation, read the full [Security Documentation](documents/SECURITY.md).
+
+---
+
 ## ✨ Key Features
 - **Admin Dashboard**: Effortlessly upload student credentials (via CSV), publish verified results, and manage departmental records.
 - **Student Portal (Web & Mobile)**: Secure login for students to view their real-time academic results and GPA breakdowns.
