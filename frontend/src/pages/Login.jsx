@@ -21,7 +21,7 @@ export default function Login() {
     if (role === 'ADMIN') {
       setLoading(true);
       try {
-        const res = await axios.post('http://172.27.208.217:3000/api/auth/admin/login', { email, password });
+        const res = await axios.post('http://54.198.25.194:3000/api/auth/admin/login', { email, password });
         localStorage.setItem('adminToken', res.data.token);
         toast.success(`Logged in securely as ${role}`);
         navigate('/admin');
@@ -34,7 +34,7 @@ export default function Login() {
       setLoading(true);
       if (isRegistering) {
         try {
-          const res = await axios.post('http://172.27.208.217:3000/api/auth/examiner/register', { email, password });
+          const res = await axios.post('http://54.198.25.194:3000/api/auth/examiner/register', { email, password });
           toast.success(res.data.message);
           setIsRegistering(false);
         } catch (err) {
@@ -44,7 +44,7 @@ export default function Login() {
         }
       } else {
         try {
-          const res = await axios.post('http://172.27.208.217:3000/api/auth/examiner/login', { email, password });
+          const res = await axios.post('http://54.198.25.194:3000/api/auth/examiner/login', { email, password });
           localStorage.setItem('examinerToken', res.data.token);
           toast.success(`Logged in securely as ${role}`);
           navigate('/examiner');

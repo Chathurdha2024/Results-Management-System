@@ -36,9 +36,9 @@ export default function GlobalDashboard({ batches, fetchBatches, onBatchSelect }
       
       let res;
       if (isEdit) {
-        res = await axios.put(`http://172.27.208.217:3000/api/admin/batches/${editingBatchId}`, batchData);
+        res = await axios.put(`http://54.198.25.194:3000/api/admin/batches/${editingBatchId}`, batchData);
       } else {
-        res = await axios.post('http://172.27.208.217:3000/api/admin/batches', batchData);
+        res = await axios.post('http://54.198.25.194:3000/api/admin/batches', batchData);
       }
       
       if (res.data.newStudentPasswords && res.data.newStudentPasswords.length > 0) {
@@ -95,7 +95,7 @@ export default function GlobalDashboard({ batches, fetchBatches, onBatchSelect }
       onConfirm: async () => {
         const toastId = toast.loading('Deleting batch...');
         try {
-          await axios.delete(`http://172.27.208.217:3000/api/admin/batches/${batch.id}`);
+          await axios.delete(`http://54.198.25.194:3000/api/admin/batches/${batch.id}`);
           fetchBatches();
           if (editingBatchId === batch.id) {
             setEditingBatchId(null);

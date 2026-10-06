@@ -28,8 +28,8 @@ export default function StudentDashboard() {
       
       try {
         const [res, schRes] = await Promise.all([
-          axios.get('http://172.27.208.217:3000/api/student/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://172.27.208.217:3000/api/student/exam-schedules', { headers: { Authorization: `Bearer ${token}` } })
+          axios.get('http://54.198.25.194:3000/api/student/dashboard', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('http://54.198.25.194:3000/api/student/exam-schedules', { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setData(res.data);
         setSchedules(schRes.data);
@@ -54,7 +54,7 @@ export default function StudentDashboard() {
 
     const fetchNotifications = async (token) => {
       try {
-        const res = await axios.get('http://172.27.208.217:3000/api/student/notifications', {
+        const res = await axios.get('http://54.198.25.194:3000/api/student/notifications', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setNotifications(res.data);
@@ -85,7 +85,7 @@ export default function StudentDashboard() {
     if (!showNotifications && notifications.some(n => !n.isRead)) {
       try {
         const token = localStorage.getItem('studentToken');
-        await axios.post('http://172.27.208.217:3000/api/student/notifications/read', {}, {
+        await axios.post('http://54.198.25.194:3000/api/student/notifications/read', {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setNotifications(notifications.map(n => ({...n, isRead: true})));

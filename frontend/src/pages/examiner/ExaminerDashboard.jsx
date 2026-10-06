@@ -41,9 +41,9 @@ export default function ExaminerDashboard() {
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const [schRes, notRes, profRes] = await Promise.all([
-        axios.get('http://172.27.208.217:3000/api/examiner/schedules', { headers }),
-        axios.get('http://172.27.208.217:3000/api/examiner/notifications', { headers }),
-        axios.get('http://172.27.208.217:3000/api/examiner/profile', { headers })
+        axios.get('http://54.198.25.194:3000/api/examiner/schedules', { headers }),
+        axios.get('http://54.198.25.194:3000/api/examiner/notifications', { headers }),
+        axios.get('http://54.198.25.194:3000/api/examiner/profile', { headers })
       ]);
       setSchedules(schRes.data);
       setNotifications(notRes.data);
@@ -67,7 +67,7 @@ export default function ExaminerDashboard() {
     const token = localStorage.getItem('examinerToken');
     if (!token) return;
     try {
-      await axios.post('http://172.27.208.217:3000/api/examiner/notifications/read', {}, {
+      await axios.post('http://54.198.25.194:3000/api/examiner/notifications/read', {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(notifications.map(n => ({ ...n, isRead: true })));
@@ -84,7 +84,7 @@ export default function ExaminerDashboard() {
     if (!token) return;
     setProfileLoading(true);
     try {
-      await axios.put('http://172.27.208.217:3000/api/examiner/profile', profileData, {
+      await axios.put('http://54.198.25.194:3000/api/examiner/profile', profileData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProfileData(prev => ({ ...prev, password: '' }));
