@@ -27,7 +27,7 @@ export default function ChangePassword() {
     try {
       const token = localStorage.getItem('studentToken');
       const res = await axios.post(
-        'http://localhost:3000/api/auth/student/change-password',
+        'http://172.27.208.217:3000/api/auth/student/change-password',
         { newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

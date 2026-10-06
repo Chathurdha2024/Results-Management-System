@@ -33,8 +33,8 @@ export default function ExaminerManagement() {
   const fetchData = async () => {
     try {
       const [exRes, schRes] = await Promise.all([
-        axios.get('http://localhost:3000/api/admin/examiners'),
-        axios.get('http://localhost:3000/api/admin/exam-schedules')
+        axios.get('http://172.27.208.217:3000/api/admin/examiners'),
+        axios.get('http://172.27.208.217:3000/api/admin/exam-schedules')
       ]);
       setExaminers(exRes.data);
       setSchedules(schRes.data);
@@ -46,7 +46,7 @@ export default function ExaminerManagement() {
   const handleCreateExaminer = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/admin/examiners', {
+      await axios.post('http://172.27.208.217:3000/api/admin/examiners', {
         email, name, departmentId: dept
       });
       toast.success('Examiner created successfully!');
@@ -63,7 +63,7 @@ export default function ExaminerManagement() {
     const toastId = toast.loading(isEdit ? 'Updating schedule...' : 'Creating schedule...');
     try {
       if (isEdit) {
-        await axios.put(`http://localhost:3000/api/admin/exam-schedules/${editingScheduleId}`, {
+        await axios.put(`http://172.27.208.217:3000/api/admin/exam-schedules/${editingScheduleId}`, {
           moduleCode: scheduleModule,
           examinerEmail: scheduleExaminer,
           date: scheduleDate,
@@ -72,7 +72,7 @@ export default function ExaminerManagement() {
         toast.success('Schedule updated successfully!', { id: toastId });
         setEditingScheduleId(null);
       } else {
-        await axios.post('http://localhost:3000/api/admin/exam-schedules', {
+        await axios.post('http://172.27.208.217:3000/api/admin/exam-schedules', {
           moduleCode: scheduleModule,
           examinerEmail: scheduleExaminer,
           date: scheduleDate,
@@ -104,7 +104,7 @@ export default function ExaminerManagement() {
     if (!confirm('Are you sure you want to delete this schedule?')) return;
     const toastId = toast.loading('Deleting schedule...');
     try {
-      await axios.delete(`http://localhost:3000/api/admin/exam-schedules/${id}`);
+      await axios.delete(`http://172.27.208.217:3000/api/admin/exam-schedules/${id}`);
       toast.success('Schedule deleted successfully!', { id: toastId });
       if (editingScheduleId === id) {
         setEditingScheduleId(null);

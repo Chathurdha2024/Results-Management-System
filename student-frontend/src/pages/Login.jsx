@@ -18,7 +18,7 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/student/login', { regNo: email, password });
+      const res = await axios.post('http://172.27.208.217:3000/api/auth/student/login', { regNo: email, password });
       localStorage.setItem('studentToken', res.data.token);
       toast.success(`Logged in securely as Student`);
       

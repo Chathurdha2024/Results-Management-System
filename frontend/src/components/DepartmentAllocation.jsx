@@ -28,7 +28,7 @@ export default function DepartmentAllocation({ batchId, semester }) {
     setUploading(deptId);
     
     try {
-      const res = await axios.post(`http://localhost:3000/api/admin/batches/${batchId}/departments/${deptId}/upload`, formData);
+      const res = await axios.post(`http://172.27.208.217:3000/api/admin/batches/${batchId}/departments/${deptId}/upload`, formData);
       toast.success(`Successfully assigned ${res.data.count} students!`, { id: tid });
     } catch (err) {
       console.error(err);

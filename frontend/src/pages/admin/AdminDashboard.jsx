@@ -24,7 +24,7 @@ export default function AdminDashboard() {
     if (selectedBatchId && activeTab !== 'GLOBAL_ALLOCATION') {
       const fetchStats = async () => {
         try {
-          const res = await axios.get(`http://localhost:3000/api/admin/batches/${selectedBatchId}/departments/${activeTab}/stats`);
+          const res = await axios.get(`http://172.27.208.217:3000/api/admin/batches/${selectedBatchId}/departments/${activeTab}/stats`);
           setDepartmentStats(res.data);
         } catch (e) {
           console.error(e);
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
 
   const fetchBatches = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/admin/batches');
+      const res = await axios.get('http://172.27.208.217:3000/api/admin/batches');
       setBatches(res.data);
       setBatches(res.data);
     } catch (e) {
