@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building and starting Docker containers...'
-                    sh 'sudo docker compose up --build -d'
+                    sh 'docker compose up --build -d'
                 }
             }
         }
