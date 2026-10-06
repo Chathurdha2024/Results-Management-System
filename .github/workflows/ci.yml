@@ -25,3 +25,5 @@ jobs:
     - name: Run Backend Tests
       working-directory: ./backend
       run: npm test --if-present
+      env:
+        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/dummy"
