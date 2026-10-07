@@ -152,7 +152,7 @@ export default async function authRoutes(fastify, options) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
 
-    const { newPassword } = request.body;
+    const { newPassword, currentPassword } = request.body;
     const { role, regNo } = request.user;
 
     if (role !== 'STUDENT' || !regNo) {
@@ -164,6 +164,23 @@ export default async function authRoutes(fastify, options) {
     }
 
     try {
+      const student = await prisma.student.findUnique({ where: { regNo } });
+      if (!student) {
+        return reply.code(404).send({ error: 'Student not found' });
+      }
+
+      // Past first login: the current password must be provided and correct.
+      // The first-login flow (isFirstLogin still true) keeps working without it.
+      if (!student.isFirstLogin) {
+        if (!currentPassword) {
+          return reply.code(400).send({ error: 'Current password is required' });
+        }
+        const match = await bcrypt.compare(currentPassword, student.password || '');
+        if (!match) {
+          return reply.code(401).send({ error: 'Current password is incorrect' });
+        }
+      }
+
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       
       const updatedStudent = await prisma.student.update({

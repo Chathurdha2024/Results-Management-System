@@ -33,6 +33,7 @@ model Student {
   departmentId  String         @default("GENERAL")
   password      String?
   isFirstLogin  Boolean        @default(true)
+  notificationsEnabled Boolean @default(true)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   notifications Notification[]

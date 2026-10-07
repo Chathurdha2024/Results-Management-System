@@ -37,9 +37,11 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-brand-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans animate-in fade-in duration-500">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <div className="bg-brand-900 p-4 rounded-3xl shadow-lg shadow-brand-900/20 mb-6 border border-brand-800">
-          <GraduationCap className="h-12 w-12 text-brand-gold" />
-        </div>
+         <img
+            src="/src/assets/logo.png"
+            alt="Logo"
+            className="h-40 w-40 object-contain -mt-37 mb-6"
+          />
         <h2 className="text-center text-3xl font-extrabold text-brand-900 tracking-tight">
           Ruhuna EngRMS
         </h2>
@@ -106,11 +108,6 @@ export default function Login() {
                 {loading ? 'Authenticating...' : 'Sign in'}
               </Button>
           </form>
-          
-          <div className="mt-6 text-center text-xs text-brand-900/60 bg-brand-gold/10 p-4 rounded-xl border border-brand-gold/20 flex items-start gap-2">
-            <span className="text-brand-gold font-bold text-lg leading-none">ℹ</span>
-            <p className="text-left">For testing purposes, type any dummy credentials and click Sign In to navigate to the student dashboard.</p>
-          </div>
         </div>
       </div>
     </div>

@@ -154,6 +154,58 @@ export async function studentRoutes(fastify, options) {
     }
   });
 
+  // GET /api/student/profile
+  fastify.get('/profile', async (request, reply) => {
+    const { role, regNo } = request.user;
+    if (role !== 'STUDENT' || !regNo) {
+      return reply.code(403).send({ error: 'Forbidden' });
+    }
+    try {
+      const student = await prisma.student.findUnique({
+        where: { regNo },
+        include: { department: true, batch: true }
+      });
+
+      if (!student) {
+        return reply.code(404).send({ error: 'Student not found' });
+      }
+
+      return reply.send({
+        regNo: student.regNo,
+        department: student.department.name,
+        batch: student.batch.name,
+        notificationsEnabled: student.notificationsEnabled
+      });
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.code(500).send({ error: 'Failed to fetch profile' });
+    }
+  });
+
+  // PUT /api/student/notification-settings
+  fastify.put('/notification-settings', async (request, reply) => {
+    const { role, regNo } = request.user;
+    if (role !== 'STUDENT' || !regNo) {
+      return reply.code(403).send({ error: 'Forbidden' });
+    }
+
+    const { enabled } = request.body || {};
+    if (typeof enabled !== 'boolean') {
+      return reply.code(400).send({ error: 'enabled must be a boolean' });
+    }
+
+    try {
+      const student = await prisma.student.update({
+        where: { regNo },
+        data: { notificationsEnabled: enabled }
+      });
+      return reply.send({ success: true, notificationsEnabled: student.notificationsEnabled });
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.code(500).send({ error: 'Failed to update notification settings' });
+    }
+  });
+
   // GET /api/student/notifications
   fastify.get('/notifications', async (request, reply) => {
     const { role, regNo } = request.user;
@@ -161,6 +213,15 @@ export async function studentRoutes(fastify, options) {
       return reply.code(403).send({ error: 'Forbidden' });
     }
     try {
+      const student = await prisma.student.findUnique({
+        where: { regNo },
+        select: { notificationsEnabled: true }
+      });
+
+      if (!student || !student.notificationsEnabled) {
+        return [];
+      }
+
       const notifications = await prisma.notification.findMany({
         where: { studentRegNo: regNo },
         orderBy: { createdAt: 'desc' }

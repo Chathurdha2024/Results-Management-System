@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import ProfileView from './ProfileView';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -17,6 +18,19 @@ export default function StudentDashboard() {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [schedules, setSchedules] = useState([]);
+
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem('studentToken');
+    if (!token) return;
+    try {
+      const res = await axios.get('/api/student/notifications', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNotifications(res.data);
+    } catch (err) {
+      console.error("Failed to fetch notifications");
+    }
+  };
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -52,22 +66,7 @@ export default function StudentDashboard() {
       }
     };
 
-    const fetchNotifications = async (token) => {
-      try {
-        const res = await axios.get('/api/student/notifications', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setNotifications(res.data);
-      } catch (err) {
-        console.error("Failed to fetch notifications");
-      }
-    };
-
-    const token = localStorage.getItem('studentToken');
-    if (token) {
-      fetchNotifications(token);
-    }
-    
+    fetchNotifications();
     fetchDashboard();
   }, [navigate]);
 
@@ -77,7 +76,8 @@ export default function StudentDashboard() {
   };
 
   const handleEditProfile = () => {
-    navigate('/change-password');
+    setActiveSem('PROFILE');
+    setMobileMenuOpen(false);
   };
 
   const handleOpenNotifications = async () => {
@@ -295,7 +295,7 @@ export default function StudentDashboard() {
             
             <h2 className="text-lg font-bold text-brand-900 flex items-center gap-2">
               <BookOpen size={20} className="text-brand-gold" />
-              {activeSem === 'OVERVIEW' ? 'Dashboard Overview' : activeSem === 'TIMETABLE' ? 'Exam Timetable' : `Semester ${activeSem} Results`}
+              {activeSem === 'OVERVIEW' ? 'Dashboard Overview' : activeSem === 'TIMETABLE' ? 'Exam Timetable' : activeSem === 'PROFILE' ? 'Profile' : `Semester ${activeSem} Results`}
             </h2>
           </div>
           
@@ -349,7 +349,14 @@ export default function StudentDashboard() {
         {/* Page Content */}
         <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-slate-50">
           
-          {activeSem === 'OVERVIEW' ? (
+          {activeSem === 'PROFILE' ? (
+            <ProfileView
+              onNotificationSettingChange={(enabled) => {
+                if (enabled) fetchNotifications();
+                else setNotifications([]);
+              }}
+            />
+          ) : activeSem === 'OVERVIEW' ? (
             <div className="max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
               
               {/* CGPA Summary Card */}

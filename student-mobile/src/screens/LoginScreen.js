@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -55,7 +56,11 @@ export default function LoginScreen({ navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.logoTile}>
-          <GraduationCap size={48} color={colors.brandGold} />
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          /> 
         </View>
         <Text style={styles.title}>Ruhuna EngRMS</Text>
         <Text style={styles.subtitle}>Student Portal</Text>
@@ -109,18 +114,8 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   logoTile: {
-    backgroundColor: colors.brand900,
-    padding: 16,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.brand800,
     alignSelf: 'center',
     marginBottom: 24,
-    shadowColor: colors.brand900,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 6,
   },
   title: {
     fontFamily,
@@ -173,4 +168,9 @@ const styles = StyleSheet.create({
     color: 'rgba(97,16,16,0.6)',
     lineHeight: 18,
   },
+  logo: {
+  width: 120,
+  height: 120,
+  marginBottom: 16,
+},
 });
