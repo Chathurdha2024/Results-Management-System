@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import logo from '@/assets/logo.png';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -38,7 +39,7 @@ export default function Login() {
     <div className="min-h-screen bg-brand-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans animate-in fade-in duration-500">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
          <img
-            src="/src/assets/logo.png"
+            src={logo}
             alt="Logo"
             className="h-40 w-40 object-contain -mt-37 mb-6"
           />
