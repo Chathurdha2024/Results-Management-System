@@ -28,7 +28,16 @@ spec:
             port:
               number: 80
               
-      # 3. Default Traffic -> Student Frontend Service
+      # 3. Grafana Dashboard -> Grafana Service
+      - path: /grafana/?(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-service
+            port:
+              number: 3000
+
+      # 4. Default Traffic -> Student Frontend Service
       - path: /?(.*)
         pathType: Prefix
         backend:
