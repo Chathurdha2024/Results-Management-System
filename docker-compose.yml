@@ -42,8 +42,9 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.0
+    command: ["--port=8081"]
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
