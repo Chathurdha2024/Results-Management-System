@@ -30,6 +30,7 @@ import Card from '../components/Card';
 import Badge from '../components/Badge';
 import BrandButton from '../components/BrandButton';
 import SidebarDrawer from '../components/SidebarDrawer';
+import ProfileView from '../components/ProfileView';
 
 export default function DashboardScreen({ navigation }) {
   const insets = useSafeAreaInsets();
@@ -57,11 +58,9 @@ export default function DashboardScreen({ navigation }) {
       setSchedules(schRes.data);
 
       const sems = Object.keys(res.data.resultsBySemester).sort((a, b) => Number(a) - Number(b));
-      if (sems.length > 0) {
-        setActiveSem((prev) => (prev ? prev : sems[0]));
-      } else {
-        setActiveSem(null);
-      }
+      // Never reset an explicit selection: refetches must not kick the user
+      // out of Profile/Overview, including students with zero semesters.
+      setActiveSem((prev) => (prev ? prev : sems[0] ?? null));
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 403) {
         toast.error('Session expired. Please log in again.');
@@ -97,7 +96,7 @@ export default function DashboardScreen({ navigation }) {
   };
 
   const handleEditProfile = () => {
-    navigation.navigate('ChangePassword');
+    setActiveSem('PROFILE');
   };
 
   const handleOpenNotifications = async () => {
@@ -151,7 +150,9 @@ export default function DashboardScreen({ navigation }) {
       ? 'Dashboard Overview'
       : activeSem === 'TIMETABLE'
         ? 'Exam Timetable'
-        : `Semester ${activeSem} Results`;
+        : activeSem === 'PROFILE'
+          ? 'Profile'
+          : `Semester ${activeSem} Results`;
 
   const renderOverview = () => (
     <View>
@@ -450,7 +451,16 @@ export default function DashboardScreen({ navigation }) {
           ? renderOverview()
           : activeSem === 'TIMETABLE'
             ? renderTimetable()
-            : renderSemester()}
+            : activeSem === 'PROFILE'
+              ? (
+                  <ProfileView
+                    onNotificationSettingChange={(enabled) => {
+                      if (enabled) fetchNotifications();
+                      else setNotifications([]);
+                    }}
+                  />
+                )
+              : renderSemester()}
       </ScrollView>
 
       {/* Notifications Modal */}

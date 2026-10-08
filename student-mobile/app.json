@@ -7,13 +7,12 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "backgroundColor": "#fefefe",
-    "splash": {
-      "backgroundColor": "#611010"
-    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.ruhuna.engrms.student",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#611010",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -33,7 +32,28 @@
           ]
         }
       ],
-      "expo-splash-screen"
-    ]
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#611010",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f1631c3a-8b87-44ff-8510-0164d6205b9f"
+      }
+    }
   }
 }
