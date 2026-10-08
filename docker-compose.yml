@@ -29,6 +29,21 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5173:80"
-    restart: unless-stopped
     depends_on:
       - backend
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "4000:3000"
+    restart: unless-stopped
+    depends_on:
+      - prometheus
