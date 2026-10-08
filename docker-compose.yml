@@ -49,8 +49,7 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/snap/docker/common/var-lib-docker/:/var/lib/docker:ro
-      - /var/snap/docker/common/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     restart: unless-stopped
     privileged: true
