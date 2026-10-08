@@ -484,31 +484,20 @@ export async function adminRoutes(fastify, options) {
         data: { isPublished: true }
       });
 
-      // Create a notification for each student who has notifications enabled
+      // Create a notification for each student
       if (resultsToPublish.length > 0) {
-        const regNos = [...new Set(resultsToPublish.map(r => r.studentRegNo))];
-        const optedOut = await prisma.student.findMany({
-          where: { regNo: { in: regNos }, notificationsEnabled: false },
-          select: { regNo: true }
+        const notifications = resultsToPublish.map(r => ({
+          studentRegNo: r.studentRegNo,
+          title: r.isRepeat ? 'Repeat Results Published' : 'New Results Published',
+          message: r.isRepeat 
+            ? `Your repeat results for module ${code} have been released.`
+            : `Your results for module ${code} have been released.`
+        }));
+
+        await prisma.notification.createMany({
+          data: notifications,
+          skipDuplicates: true
         });
-        const optedOutSet = new Set(optedOut.map(s => s.regNo));
-
-        const notifications = resultsToPublish
-          .filter(r => !optedOutSet.has(r.studentRegNo))
-          .map(r => ({
-            studentRegNo: r.studentRegNo,
-            title: r.isRepeat ? 'Repeat Results Published' : 'New Results Published',
-            message: r.isRepeat 
-              ? `Your repeat results for module ${code} have been released.`
-              : `Your results for module ${code} have been released.`
-          }));
-
-        if (notifications.length > 0) {
-          await prisma.notification.createMany({
-            data: notifications,
-            skipDuplicates: true
-          });
-        }
       }
 
       return reply.send({ success: true });

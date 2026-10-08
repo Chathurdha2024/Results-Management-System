@@ -23,6 +23,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [isRepeatUpload, setIsRepeatUpload] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ open: false, title: '', description: '', onConfirm: null, isSuccessOnly: false });
 
@@ -32,7 +33,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
 
   const fetchResults = async () => {
     try {
-      const res = await axios.get(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results${department ? `?department=${department}` : ''}`);
+      const res = await axios.get(`http://localhost:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results${department ? `?department=${department}` : ''}`);
       // Filter results to only show students from the currently active batch
       const filteredResults = batchId 
         ? res.data.filter(r => r.student && r.student.batchId === batchId)
@@ -48,23 +49,31 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
     if (!file) return;
     setUploading(true);
     setUploadProgress(0);
+    setElapsedTime(0);
     
-    const progressInterval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + 10;
-      });
-    }, 200);
+    const startTime = Date.now();
+    const expectedSeconds = 120;
+    
+    const timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      setElapsedTime(elapsed);
+      
+      let newProgress;
+      if (elapsed <= expectedSeconds) {
+        newProgress = (elapsed / expectedSeconds) * 90;
+      } else {
+        const extraElapsed = Math.max(0, elapsed - expectedSeconds);
+        newProgress = 90 + (9 * (1 - Math.exp(-0.02 * extraElapsed)));
+      }
+      setUploadProgress(newProgress);
+    }, 1000);
     
     const formData = new FormData();
     formData.append('file', file);
     
     try {
-      await axios.post(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results/upload?batchId=${batchId}&isRepeatUpload=${isRepeatUpload}`, formData);
-      clearInterval(progressInterval);
+      await axios.post(`http://localhost:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results/upload?batchId=${batchId}&isRepeatUpload=${isRepeatUpload}`, formData);
+      clearInterval(timerInterval);
       setUploadProgress(100);
       
       setTimeout(() => {
@@ -81,7 +90,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
         setUploading(false);
       }, 500);
     } catch (e) {
-      clearInterval(progressInterval);
+      clearInterval(timerInterval);
       setUploadProgress(0);
       setUploading(false);
       console.error(e);
@@ -97,7 +106,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
       onConfirm: async () => {
         const tid = toast.loading('Publishing...');
         try {
-          await axios.post(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results/publish`);
+          await axios.post(`http://localhost:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results/publish`);
           toast.success('Results published!', { id: tid });
           fetchResults();
         } catch (e) {
@@ -116,7 +125,7 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
       onConfirm: async () => {
         const tid = toast.loading('Unpublishing...');
         try {
-          await axios.post(`/api/admin/modules/${encodeURIComponent(moduleCode)}/results/unpublish`);
+          await axios.post(`http://localhost:3000/api/admin/modules/${encodeURIComponent(moduleCode)}/results/unpublish`);
           toast.success('Results unpublished!', { id: tid });
           fetchResults();
         } catch (e) {
@@ -126,6 +135,17 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
       }
     });
   };
+
+  const formatTime = (secs) => {
+    if (isNaN(secs) || secs < 0) return '0m 0s';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}m ${s}s`;
+  };
+
+  const remainingTime = uploadProgress > 0 
+    ? Math.max(0, Math.floor((elapsedTime / (uploadProgress / 100)) - elapsedTime)) 
+    : 120;
 
   return (
     <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -167,16 +187,30 @@ export default function ResultUploadModal({ batchId, moduleCode, department, onC
               </div>
 
               {uploading && (
-                <div className="w-full max-w-md mt-6">
-                  <div className="flex justify-between text-xs text-brand-900/70 font-bold mb-1">
-                    <span>Processing Data</span>
-                    <span>{uploadProgress}%</span>
+                <div className="w-full max-w-md mt-6 bg-brand-gold/5 border border-brand-gold/20 p-5 rounded-2xl shadow-sm">
+                  <div className="flex flex-col gap-2 mb-4 text-center">
+                    <p className="text-sm font-bold text-red-600 animate-pulse">
+                      Please don't close or refresh this window until uploads complete.
+                    </p>
+                    <p className="text-xs text-brand-900/70 font-medium">
+                      This process involves processing records and will take a few minutes.
+                    </p>
                   </div>
-                  <div className="w-full bg-brand-gold/20 rounded-full h-2.5 overflow-hidden">
+                  <div className="flex justify-between text-xs text-brand-900/80 font-extrabold mb-2">
+                    <span>Processing Data...</span>
+                    <span>{Math.floor(uploadProgress)}%</span>
+                  </div>
+                  <div className="w-full bg-brand-gold/20 rounded-full h-3 overflow-hidden mb-3">
                     <div 
-                      className="bg-brand-900 h-2.5 rounded-full transition-all duration-300 ease-out"
+                      className="bg-brand-900 h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden"
                       style={{ width: `${uploadProgress}%` }}
-                    ></div>
+                    >
+                      <div className="absolute inset-0 bg-white/20 animate-pulse -skew-x-12"></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-brand-900/80 font-bold px-1">
+                    <span className="flex items-center gap-1">Elapsed: {formatTime(elapsedTime)}</span>
+                    <span className="flex items-center gap-1">Remaining: ~{formatTime(remainingTime)}</span>
                   </div>
                 </div>
               )}
