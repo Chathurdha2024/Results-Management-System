@@ -1,0 +1,93 @@
+{
+  "title": "RMS Production Dashboard",
+  "timezone": "browser",
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "row",
+      "title": "1. Business & Application Metrics",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "Total Student Logins",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "targets": [{ "expr": "sum(rms_student_logins_total)" }],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Total Result Uploads",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "targets": [{ "expr": "sum(rms_result_uploads_total)" }],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "System Errors (HTTP 500s)",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "targets": [{ "expr": "sum(increase(http_request_summary_seconds_count{status_code=~\"5..\"}[5m]))" }],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Security Alerts (Failed Admin Logins)",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "targets": [{ "expr": "sum(rms_failed_admin_logins_total)" }],
+      "options": {
+        "colorMode": "value"
+      }
+    },
+    {
+      "type": "row",
+      "title": "2. Node.js & Fastify Health",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "timeseries",
+      "title": "API Request Rate (Requests/sec)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [{ "expr": "sum(rate(http_request_summary_seconds_count[1m])) by (route)", "legendFormat": "{{route}}" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Node.js Memory Usage (RAM)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [{ "expr": "process_resident_memory_bytes", "legendFormat": "Memory Bytes" }]
+    },
+    {
+      "type": "row",
+      "title": "3. Docker Infrastructure Health",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 }
+    },
+    {
+      "type": "stat",
+      "title": "Active Docker Containers",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 15 },
+      "targets": [{ "expr": "count(container_last_seen{name=~\"results-management-system.*\"})" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Network Traffic (Bytes Received)",
+      "gridPos": { "h": 7, "w": 9, "x": 6, "y": 15 },
+      "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{name=~\"results-management-system.*\"}[1m])) by (name)", "legendFormat": "{{name}} Inbound" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Network Traffic (Bytes Transmitted)",
+      "gridPos": { "h": 7, "w": 9, "x": 15, "y": 15 },
+      "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{name=~\"results-management-system.*\"}[1m])) by (name)", "legendFormat": "{{name}} Outbound" }]
+    }
+  ],
+  "schemaVersion": 38
+}

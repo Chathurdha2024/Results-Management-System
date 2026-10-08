@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import multipart from '@fastify/multipart'
 import jwt from '@fastify/jwt'
 import fastifyMetrics from 'fastify-metrics'
+import promClient from 'prom-client'
 import prisma from './lib/prisma.js'
 import { adminRoutes } from './routes/adminRoutes.js'
 import { studentRoutes } from './routes/studentRoutes.js'
@@ -30,7 +31,7 @@ async function seedDepartments() {
 }
 
 // Register plugins
-fastify.register(fastifyMetrics.default || fastifyMetrics, { endpoint: '/metrics' })
+fastify.register(fastifyMetrics.default || fastifyMetrics, { endpoint: '/metrics', promClient })
 fastify.register(cors, { 
   origin: '*'
 })

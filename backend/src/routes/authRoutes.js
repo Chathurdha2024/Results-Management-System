@@ -1,5 +1,18 @@
 import prisma from '../lib/prisma.js';
 import bcrypt from 'bcrypt';
+import client from 'prom-client';
+
+const failedAdminLoginsCounter = new client.Counter({
+  name: 'rms_failed_admin_logins_total',
+  help: 'Total number of failed admin login attempts'
+});
+failedAdminLoginsCounter.inc(0);
+
+const studentLoginsCounter = new client.Counter({
+  name: 'rms_student_logins_total',
+  help: 'Total number of successful student logins'
+});
+studentLoginsCounter.inc(0);
 export default async function authRoutes(fastify, options) {
   // POST /api/auth/admin/login
   fastify.post('/admin/login', async (request, reply) => {
@@ -12,11 +25,13 @@ export default async function authRoutes(fastify, options) {
     try {
       const admin = await prisma.admin.findUnique({ where: { email } });
       if (!admin) {
+        failedAdminLoginsCounter.inc();
         return reply.code(401).send({ error: 'Invalid email or password' });
       }
 
       const match = await bcrypt.compare(password, admin.password);
       if (!match) {
+        failedAdminLoginsCounter.inc();
         return reply.code(401).send({ error: 'Invalid email or password' });
       }
 
@@ -67,6 +82,7 @@ export default async function authRoutes(fastify, options) {
         isFirstLogin: student.isFirstLogin
       });
 
+      studentLoginsCounter.inc();
       return reply.send({ success: true, token, regNo: student.regNo, isFirstLogin: student.isFirstLogin });
     } catch (error) {
       fastify.log.error(error);
