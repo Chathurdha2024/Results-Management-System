@@ -116,35 +116,35 @@
       "title": "Backend API Pods",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": { "h": 6, "w": 4, "x": 0, "y": 24 },
-      "targets": [{ "expr": "count(container_last_seen{name=~\".*backend.*\"})" }]
+      "targets": [{ "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"backend\"})" }]
     },
     {
       "type": "stat",
       "title": "Admin UI Pods",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": { "h": 6, "w": 4, "x": 4, "y": 24 },
-      "targets": [{ "expr": "count(container_last_seen{name=~\".*frontend.*\", name!~\".*student-frontend.*\"})" }]
+      "targets": [{ "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"frontend\"})" }]
     },
     {
       "type": "stat",
       "title": "Student UI Pods",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": { "h": 6, "w": 4, "x": 8, "y": 24 },
-      "targets": [{ "expr": "count(container_last_seen{name=~\".*student-frontend.*\"})" }]
+      "targets": [{ "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"student-frontend\"})" }]
     },
     {
       "type": "timeseries",
       "title": "Network Traffic (Bytes Received)",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": { "h": 6, "w": 6, "x": 12, "y": 24 },
-      "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{name=~\".*results-.*\"}[1m])) by (name)", "legendFormat": "{{name}} Inbound" }]
+      "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{container_label_com_docker_compose_service=~\".+\"}[1m])) by (container_label_com_docker_compose_service)", "legendFormat": "{{container_label_com_docker_compose_service}} Inbound" }]
     },
     {
       "type": "timeseries",
       "title": "Network Traffic (Bytes Transmitted)",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": { "h": 6, "w": 6, "x": 18, "y": 24 },
-      "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".*results-.*\"}[1m])) by (name)", "legendFormat": "{{name}} Outbound" }]
+      "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{container_label_com_docker_compose_service=~\".+\"}[1m])) by (container_label_com_docker_compose_service)", "legendFormat": "{{container_label_com_docker_compose_service}} Outbound" }]
     }
   ],
   "schemaVersion": 38
