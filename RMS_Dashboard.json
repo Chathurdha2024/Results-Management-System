@@ -85,7 +85,7 @@
       "type": "timeseries",
       "title": "Latency (Average Percentiles)",
       "datasource": "${DS_PROMETHEUS}",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
       "targets": [
         { "expr": "http_request_summary_seconds{quantile=\"0.99\"}", "legendFormat": "P99" },
         { "expr": "http_request_summary_seconds{quantile=\"0.95\"}", "legendFormat": "P95" },
@@ -96,8 +96,15 @@
       "type": "timeseries",
       "title": "Node.js Memory Usage (RAM)",
       "datasource": "${DS_PROMETHEUS}",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
       "targets": [{ "expr": "process_resident_memory_bytes", "legendFormat": "Memory Bytes" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Node.js CPU Usage",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+      "targets": [{ "expr": "rate(process_cpu_user_seconds_total[1m]) + rate(process_cpu_system_seconds_total[1m])", "legendFormat": "CPU Time (sec/sec)" }]
     },
     {
       "type": "row",
@@ -106,24 +113,38 @@
     },
     {
       "type": "stat",
-      "title": "Active Docker Containers",
+      "title": "Backend API Pods",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": { "h": 6, "w": 4, "x": 0, "y": 24 },
-      "targets": [{ "expr": "count(container_last_seen{name=~\".*results-management.*\"})" }]
+      "targets": [{ "expr": "count(container_last_seen{name=~\".*backend.*\"})" }]
+    },
+    {
+      "type": "stat",
+      "title": "Admin UI Pods",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 4, "x": 4, "y": 24 },
+      "targets": [{ "expr": "count(container_last_seen{name=~\".*frontend.*\", name!~\".*student-frontend.*\"})" }]
+    },
+    {
+      "type": "stat",
+      "title": "Student UI Pods",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": { "h": 6, "w": 4, "x": 8, "y": 24 },
+      "targets": [{ "expr": "count(container_last_seen{name=~\".*student-frontend.*\"})" }]
     },
     {
       "type": "timeseries",
       "title": "Network Traffic (Bytes Received)",
       "datasource": "${DS_PROMETHEUS}",
-      "gridPos": { "h": 6, "w": 10, "x": 4, "y": 24 },
-      "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{name=~\".*results-management.*\"}[1m])) by (name)", "legendFormat": "{{name}} Inbound" }]
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 24 },
+      "targets": [{ "expr": "sum(rate(container_network_receive_bytes_total{name=~\".*results-.*\"}[1m])) by (name)", "legendFormat": "{{name}} Inbound" }]
     },
     {
       "type": "timeseries",
       "title": "Network Traffic (Bytes Transmitted)",
       "datasource": "${DS_PROMETHEUS}",
-      "gridPos": { "h": 6, "w": 10, "x": 14, "y": 24 },
-      "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".*results-management.*\"}[1m])) by (name)", "legendFormat": "{{name}} Outbound" }]
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 24 },
+      "targets": [{ "expr": "sum(rate(container_network_transmit_bytes_total{name=~\".*results-.*\"}[1m])) by (name)", "legendFormat": "{{name}} Outbound" }]
     }
   ],
   "schemaVersion": 38
