@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, TextInput, Text, Pressable, StyleSheet } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 import { colors, fontFamily } from '../theme';
 
 export default function BrandInput({
@@ -8,10 +9,14 @@ export default function BrandInput({
   onChangeText,
   placeholder,
   secureTextEntry = false,
+  showSecureToggle = false,
   icon,
   keyboardType = 'default',
   autoCapitalize = 'none',
 }) {
+  const [secureVisible, setSecureVisible] = useState(false);
+  const hidden = secureTextEntry && !secureVisible;
+
   return (
     <View style={styles.wrapper}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
@@ -22,11 +27,28 @@ export default function BrandInput({
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor="rgba(97,16,16,0.35)"
-          secureTextEntry={secureTextEntry}
+          secureTextEntry={hidden}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
-          style={[styles.input, icon ? styles.inputWithIcon : null]}
+          style={[
+            styles.input,
+            icon ? styles.inputWithIcon : null,
+            secureTextEntry && showSecureToggle ? styles.inputWithToggle : null,
+          ]}
         />
+        {secureTextEntry && showSecureToggle ? (
+          <Pressable
+            onPress={() => setSecureVisible((v) => !v)}
+            style={styles.secureToggle}
+            hitSlop={8}
+          >
+            {secureVisible ? (
+              <EyeOff size={20} color="rgba(97,16,16,0.4)" />
+            ) : (
+              <Eye size={20} color="rgba(97,16,16,0.4)" />
+            )}
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -52,6 +74,10 @@ const styles = StyleSheet.create({
     left: 12,
     zIndex: 1,
   },
+  secureToggle: {
+    position: 'absolute',
+    right: 12,
+  },
   input: {
     fontFamily,
     backgroundColor: 'rgba(245,189,26,0.05)',
@@ -65,5 +91,8 @@ const styles = StyleSheet.create({
   },
   inputWithIcon: {
     paddingLeft: 40,
+  },
+  inputWithToggle: {
+    paddingRight: 40,
   },
 });

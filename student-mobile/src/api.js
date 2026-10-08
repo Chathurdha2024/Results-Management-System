@@ -30,8 +30,13 @@ export function apiErrorMessage(err, fallback) {
 export const authApi = {
   login: (regNo, password) =>
     api.post('/api/auth/student/login', { regNo, password }),
-  changePassword: (newPassword) =>
-    api.post('/api/auth/student/change-password', { newPassword }),
+  // currentPassword is required after the first login; the forced
+  // first-login flow (isFirstLogin still true) may omit it.
+  changePassword: (newPassword, currentPassword) =>
+    api.post('/api/auth/student/change-password', {
+      newPassword,
+      ...(currentPassword ? { currentPassword } : {}),
+    }),
 };
 
 export const studentApi = {
@@ -39,6 +44,9 @@ export const studentApi = {
   examSchedules: () => api.get('/api/student/exam-schedules'),
   notifications: () => api.get('/api/student/notifications'),
   markNotificationsRead: () => api.post('/api/student/notifications/read'),
+  profile: () => api.get('/api/student/profile'),
+  updateNotificationSettings: (enabled) =>
+    api.put('/api/student/notification-settings', { enabled }),
 };
 
 export default api;

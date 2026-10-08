@@ -80,6 +80,7 @@ export default function LoginScreen({ navigation }) {
               onChangeText={setPassword}
               placeholder="••••••••"
               secureTextEntry
+              showSecureToggle
               icon={<Lock size={20} color="rgba(97,16,16,0.4)" />}
             />
             <BrandButton
