@@ -15,6 +15,9 @@ spec:
     metadata:
       labels:
         app: backend-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
     spec:
       containers:
       - name: backend-api
@@ -61,6 +64,9 @@ spec:
     metadata:
       labels:
         app: student-frontend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
     spec:
       containers:
       - name: student-frontend
@@ -97,6 +103,9 @@ spec:
     metadata:
       labels:
         app: admin-frontend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
     spec:
       containers:
       - name: admin-frontend

@@ -1,6 +1,14 @@
 import prisma from '../lib/prisma.js'
 import csv from 'csv-parser'
 import bcrypt from 'bcrypt'
+import client from 'prom-client'
+
+const resultUploadsCounter = new client.Counter({
+  name: 'rms_result_uploads_total',
+  help: 'Total number of CSV result files uploaded'
+});
+// Initialize to 0 so Grafana discovers the metric instantly
+resultUploadsCounter.inc(0);
 
 async function generateNewStudents(batchId, startRegNo, endRegNo) {
     const prefixMatch = startRegNo.match(/^(.*[_/])(\d+)$/);
@@ -440,6 +448,9 @@ export async function adminRoutes(fastify, options) {
       for (let i = 0; i < operations.length; i += chunkSize) {
         await prisma.$transaction(operations.slice(i, i + chunkSize));
       }
+      
+      // Increment the Prometheus metric
+      resultUploadsCounter.inc();
       
       return reply.send({ success: true, count: results.length });
     } catch (error) {
