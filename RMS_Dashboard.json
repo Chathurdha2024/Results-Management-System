@@ -287,7 +287,7 @@
       },
       "targets": [
         {
-          "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"backend\"})"
+          "expr": "count(container_last_seen{name=~\"(.*)backend(.*)\"})"
         }
       ]
     },
@@ -303,7 +303,7 @@
       },
       "targets": [
         {
-          "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"frontend\"})"
+          "expr": "count(container_last_seen{name=~\"(.*)frontend(.*)\", name!~\"(.*)student(.*)\"})"
         }
       ]
     },
@@ -319,7 +319,7 @@
       },
       "targets": [
         {
-          "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"student-frontend\"})"
+          "expr": "count(container_last_seen{name=~\"(.*)student-frontend(.*)\"})"
         }
       ]
     }
