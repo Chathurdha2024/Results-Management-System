@@ -40,12 +40,13 @@ kind: Service
 metadata:
   name: backend-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: backend-api
   ports:
   - port: 3000
     targetPort: 3000
+    nodePort: 30001
 
 ---
 # 2. STUDENT PORTAL DEPLOYMENT & SERVICE
@@ -79,12 +80,13 @@ kind: Service
 metadata:
   name: student-frontend-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: student-frontend
   ports:
   - port: 80
     targetPort: 80
+    nodePort: 30002
 
 ---
 # 3. ADMIN PORTAL DEPLOYMENT & SERVICE
@@ -118,9 +120,10 @@ kind: Service
 metadata:
   name: admin-frontend-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: admin-frontend
   ports:
   - port: 80
     targetPort: 80
+    nodePort: 30003
