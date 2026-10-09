@@ -277,7 +277,7 @@
     },
     {
       "type": "stat",
-      "title": "Backend API Pods",
+      "title": "Backend API Containers",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 6,
@@ -293,7 +293,7 @@
     },
     {
       "type": "stat",
-      "title": "Admin UI Pods",
+      "title": "Admin UI Containers",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 6,
@@ -309,7 +309,7 @@
     },
     {
       "type": "stat",
-      "title": "Student UI Pods",
+      "title": "Student UI Containers",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 6,
@@ -320,40 +320,6 @@
       "targets": [
         {
           "expr": "count(container_last_seen{container_label_com_docker_compose_service=\"student-frontend\"})"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "Network Traffic (Bytes Received)",
-      "datasource": "${DS_PROMETHEUS}",
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 12,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_network_receive_bytes_total{container_label_com_docker_compose_service=~\".+\"}[1m])) by (container_label_com_docker_compose_service)",
-          "legendFormat": "{{container_label_com_docker_compose_service}} Inbound"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "Network Traffic (Bytes Transmitted)",
-      "datasource": "${DS_PROMETHEUS}",
-      "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 18,
-        "y": 24
-      },
-      "targets": [
-        {
-          "expr": "sum(rate(container_network_transmit_bytes_total{container_label_com_docker_compose_service=~\".+\"}[1m])) by (container_label_com_docker_compose_service)",
-          "legendFormat": "{{container_label_com_docker_compose_service}} Outbound"
         }
       ]
     }
