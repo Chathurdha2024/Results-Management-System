@@ -24,13 +24,6 @@ pipeline {
                     docker build -t engrms/student-frontend:latest ./student-frontend
                     '''
                     
-                    echo 'Injecting images into K3s Cloud Cluster...'
-                    sh '''
-                    docker save engrms/backend:latest | sudo k3s ctr images import -
-                    docker save engrms/admin-frontend:latest | sudo k3s ctr images import -
-                    docker save engrms/student-frontend:latest | sudo k3s ctr images import -
-                    '''
-                    
                     echo 'Applying Kubernetes Manifests...'
                     sh '''
                     sudo k3s kubectl apply -f k8s/
