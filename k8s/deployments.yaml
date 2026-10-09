@@ -40,13 +40,12 @@ kind: Service
 metadata:
   name: backend-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: backend-api
   ports:
   - port: 3000
     targetPort: 3000
-    nodePort: 30001
 
 ---
 # 2. STUDENT PORTAL DEPLOYMENT & SERVICE
@@ -80,13 +79,12 @@ kind: Service
 metadata:
   name: student-frontend-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: student-frontend
   ports:
-  - port: 80
+  - port: 5174
     targetPort: 80
-    nodePort: 30002
 
 ---
 # 3. ADMIN PORTAL DEPLOYMENT & SERVICE
@@ -120,10 +118,9 @@ kind: Service
 metadata:
   name: admin-frontend-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: admin-frontend
   ports:
-  - port: 80
+  - port: 5173
     targetPort: 80
-    nodePort: 30003
