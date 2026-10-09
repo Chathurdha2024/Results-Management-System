@@ -14,23 +14,11 @@ pipeline {
             }
         }
 
-        stage('Build & Deploy to K3s Kubernetes') {
+        stage('Build & Deploy with Docker Compose') {
             steps {
                 script {
-                    echo 'Building images with Docker...'
-                    sh '''
-                    docker build -t engrms/backend:latest ./backend
-                    docker build -t engrms/admin-frontend:latest ./frontend
-                    docker build -t engrms/student-frontend:latest ./student-frontend
-                    '''
-                    
-                    echo 'Applying Kubernetes Manifests...'
-                    sh '''
-                    sudo k3s kubectl apply -f k8s/
-                    sudo k3s kubectl rollout restart deployment backend-api
-                    sudo k3s kubectl rollout restart deployment admin-frontend
-                    sudo k3s kubectl rollout restart deployment student-frontend
-                    '''
+                    echo 'Building and starting Docker containers...'
+                    sh 'docker compose up --build -d'
                 }
             }
         }
