@@ -50,7 +50,13 @@ async function generateNewStudents(batchId, startRegNo, endRegNo) {
 }
 
 export async function adminRoutes(fastify, options) {
-  
+  // Reject any valid JWT that is not an ADMIN (runs after the global authenticate hook)
+  fastify.addHook('onRequest', async (request, reply) => {
+    if (!request.user || request.user.role !== 'ADMIN') {
+      return reply.code(403).send({ error: 'Forbidden' });
+    }
+  });
+
   // 1. Create a Batch
   fastify.post('/batches', async (request, reply) => {
     const { name, startRegNo, endRegNo } = request.body;
