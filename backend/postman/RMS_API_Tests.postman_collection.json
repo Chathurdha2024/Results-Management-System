@@ -1,0 +1,409 @@
+{
+  "info": {
+    "name": "RMS API Tests",
+    "description": "API tests for Results Management System backend (Fastify, port 3000). Run the requests IN ORDER (Collection Runner) because login requests save tokens used by later requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "API-01 Student Login - Valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC01: status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TC01: response has token', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(true);",
+                  "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('studentToken', json.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"regNo\": \"{{studentRegNo}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/student/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "student", "login"] }
+          }
+        },
+        {
+          "name": "API-02 Student Login - Wrong Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC02: status is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('TC02: error message returned', () => {",
+                  "  pm.expect(pm.response.json().error).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"regNo\": \"{{studentRegNo}}\",\n  \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/student/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "student", "login"] }
+          }
+        },
+        {
+          "name": "API-03 Student Login - Missing Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC03: status is 400', () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"regNo\": \"\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/student/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "student", "login"] }
+          }
+        },
+        {
+          "name": "API-04 Student Login - Unknown RegNo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC04: status is 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"regNo\": \"ZZ999999\",\n  \"password\": \"Anything123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/student/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "student", "login"] }
+          }
+        },
+        {
+          "name": "API-05 Admin Login - Valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC05: status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TC05: response has token', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.success).to.eql(true);",
+                  "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('adminToken', json.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/admin/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "admin", "login"] }
+          }
+        },
+        {
+          "name": "API-06 Admin Login - Wrong Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC06: status is 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"WrongPassword123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/admin/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "admin", "login"] }
+          }
+        },
+        {
+          "name": "API-07 Examiner Login - Valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC07: status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TC07: response has token', () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "  pm.environment.set('examinerToken', json.token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{examinerEmail}}\",\n  \"password\": \"{{examinerPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/examiner/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "examiner", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student API (Bearer token)",
+      "item": [
+        {
+          "name": "API-08 Student Dashboard - Valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC08: status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TC08: response is JSON object', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/student/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "student", "dashboard"] }
+          }
+        },
+        {
+          "name": "API-09 Student Dashboard - No Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC09: status is 401 without token', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/student/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "student", "dashboard"] }
+          }
+        },
+        {
+          "name": "API-10 Student Dashboard - Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC10: status is 401 with fake token', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer faketoken.abc.123" }],
+            "url": { "raw": "{{baseUrl}}/api/student/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "student", "dashboard"] }
+          }
+        },
+        {
+          "name": "API-11 Student Profile - Valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC11: status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/student/profile", "host": ["{{baseUrl}}"], "path": ["api", "student", "profile"] }
+          }
+        },
+        {
+          "name": "API-12 Student Exam Schedules - Valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC12: status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/student/exam-schedules", "host": ["{{baseUrl}}"], "path": ["api", "student", "exam-schedules"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin API (Bearer token)",
+      "item": [
+        {
+          "name": "API-13 Admin Batches - Valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC13: status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('TC13: response is JSON', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/batches", "host": ["{{baseUrl}}"], "path": ["api", "admin", "batches"] }
+          }
+        },
+        {
+          "name": "API-14 Admin Batches - No Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC14: status is 401 without token', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/admin/batches", "host": ["{{baseUrl}}"], "path": ["api", "admin", "batches"] }
+          }
+        },
+        {
+          "name": "API-15 Admin Examiners List - Valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC15: status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/examiners", "host": ["{{baseUrl}}"], "path": ["api", "admin", "examiners"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Examiner API (Bearer token)",
+      "item": [
+        {
+          "name": "API-16 Examiner Schedules - Valid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('TC16: status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{examinerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/examiner/schedules", "host": ["{{baseUrl}}"], "path": ["api", "examiner", "schedules"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security - Cross Role",
+      "item": [
+        {
+          "name": "API-17 Student Dashboard with ADMIN token (role check)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Expected: 401 or 403 (a student-only route should reject an admin-role token).",
+                  "// If this returns 200, that is a BROKEN ACCESS CONTROL bug - record it in your QA report!",
+                  "pm.test('TC17: student route rejects admin token (401/403)', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/student/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "student", "dashboard"] }
+          }
+        }
+      ]
+    }
+  ]
+}

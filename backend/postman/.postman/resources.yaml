@@ -1,0 +1,18 @@
+workspace:
+  id: 14103f3b-6eaa-4d81-87a8-f174765f101d
+
+localResources:
+  collections:
+    - ../RMS_API_Tests.postman_collection.json
+  environments:
+    - ../RMS_API_Env.postman_environment.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../RMS_API_Tests.postman_collection.json: 45207794-9405c802-24c8-453a-89a5-441d5160bae3
+  environments:
+    ../RMS_API_Env.postman_environment.json: 45207794-6ec21d3d-8858-4e0e-b475-39b3304c05fd
+  globals:
+    ../postman/globals/workspace.globals.yaml: f14cf6dc-3fc2-4227-8dde-6fdb7be97c2b
