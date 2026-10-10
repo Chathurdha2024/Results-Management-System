@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
 import { fastify } from '../../src/server.js'
+import { dbAvailable } from './dbAvailable.js'
 
-// Integration tests for auth flows that touch the real database.
-// All tests here are READ-ONLY: they use unknown accounts, so no data is
-// created, updated, or deleted.
+// Integration tests for auth flows. Tests marked with runIf(dbAvailable) touch
+// the real database and are skipped when no live database is reachable (CI).
+// The rest (validation 400 / role 403) run everywhere. All tests are READ-ONLY:
+// they use unknown accounts, so no data is created, updated, or deleted.
 
 describe('Auth API - database integration', () => {
   beforeAll(async () => {
@@ -16,7 +18,7 @@ describe('Auth API - database integration', () => {
   })
 
   describe('POST /api/auth/admin/login', () => {
-    it('INT-01: returns 401 for an email that does not exist', async () => {
+    it.runIf(dbAvailable)('INT-01: returns 401 for an email that does not exist', async () => {
       const res = await request(fastify.server)
         .post('/api/auth/admin/login')
         .send({ email: 'does.not.exist@rms.test', password: 'whatever123' })
@@ -27,7 +29,7 @@ describe('Auth API - database integration', () => {
   })
 
   describe('POST /api/auth/student/login', () => {
-    it('INT-02: returns 401 for a registration number that does not exist', async () => {
+    it.runIf(dbAvailable)('INT-02: returns 401 for a registration number that does not exist', async () => {
       const res = await request(fastify.server)
         .post('/api/auth/student/login')
         .send({ regNo: 'ZZ/9999/999', password: 'whatever123' })
@@ -38,7 +40,7 @@ describe('Auth API - database integration', () => {
   })
 
   describe('POST /api/auth/examiner/login', () => {
-    it('INT-03: returns 401 for an examiner email that does not exist', async () => {
+    it.runIf(dbAvailable)('INT-03: returns 401 for an examiner email that does not exist', async () => {
       const res = await request(fastify.server)
         .post('/api/auth/examiner/login')
         .send({ email: 'no.such.examiner@rms.test', password: 'whatever123' })
@@ -49,7 +51,7 @@ describe('Auth API - database integration', () => {
   })
 
   describe('POST /api/auth/examiner/register', () => {
-    it('INT-04: returns 404 when the examiner account does not exist', async () => {
+    it.runIf(dbAvailable)('INT-04: returns 404 when the examiner account does not exist', async () => {
       const res = await request(fastify.server)
         .post('/api/auth/examiner/register')
         .send({ email: 'no.such.examiner@rms.test', password: 'whatever123' })
@@ -77,7 +79,7 @@ describe('Auth API - database integration', () => {
       expect(res.body).toHaveProperty('error', 'Password must be at least 6 characters long')
     })
 
-    it('INT-06: returns 404 when the student in the token does not exist', async () => {
+    it.runIf(dbAvailable)('INT-06: returns 404 when the student in the token does not exist', async () => {
       const token = fastify.jwt.sign({
         id: 'ZZ/9999/999',
         regNo: 'ZZ/9999/999',

@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
 import { fastify } from '../../src/server.js'
+import { dbAvailable } from './dbAvailable.js'
 
 // Integration tests for JWT protection and role-based access control.
 // Tokens are signed with the app's own JWT signer after fastify.ready(),
-// so no login data or real passwords are needed. All tests are read-only.
+// so no login data or real passwords are needed. Tests marked with
+// runIf(dbAvailable) query the database and are skipped when no live database
+// is reachable (CI). All tests are read-only.
 
 describe('Protected routes - authentication and authorization', () => {
   beforeAll(async () => {
@@ -56,7 +59,7 @@ describe('Protected routes - authentication and authorization', () => {
   })
 
   describe('Role-based access control', () => {
-    it('INT-12: STUDENT token on student dashboard passes auth (404 = route reached, student not in DB)', async () => {
+    it.runIf(dbAvailable)('INT-12: STUDENT token on student dashboard passes auth (404 = route reached, student not in DB)', async () => {
       const res = await request(fastify.server)
         .get('/api/student/dashboard')
         .set('Authorization', `Bearer ${studentToken()}`)
@@ -76,7 +79,7 @@ describe('Protected routes - authentication and authorization', () => {
       expect(res.body).toHaveProperty('error', 'Forbidden')
     })
 
-    it('INT-14: EXAMINER token on examiner schedules -> 200 with a JSON array', async () => {
+    it.runIf(dbAvailable)('INT-14: EXAMINER token on examiner schedules -> 200 with a JSON array', async () => {
       const res = await request(fastify.server)
         .get('/api/examiner/schedules')
         .set('Authorization', `Bearer ${examinerToken()}`)
